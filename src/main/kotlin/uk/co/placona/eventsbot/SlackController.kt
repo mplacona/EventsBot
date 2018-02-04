@@ -13,6 +13,7 @@ import uk.co.placona.eventsbot.models.Message
 import uk.co.placona.eventsbot.models.ResponseType
 import uk.co.placona.eventsbot.slack.SlackClient
 import uk.co.placona.eventsbot.utilities.UnauthorisedException
+import java.text.SimpleDateFormat
 
 
 @RestController
@@ -34,6 +35,9 @@ class SlackController {
             @ModelAttribute("response_url") responseUrl: String): DeferredResult<Message> {
         val desiredToken = System.getenv("VERIFICATION_TOKEN")
         val defResult = DeferredResult<Message>()
+        val attachments: kotlin.collections.MutableList<Attachment> = java.util.ArrayList()
+        val outputFormat = SimpleDateFormat("EEE, dd MMM YY")
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
 
         if (desiredToken != token) {
             throw UnauthorisedException()
@@ -47,13 +51,10 @@ class SlackController {
             return defResult
         }
 
-        val list: kotlin.collections.MutableList<Attachment> = java.util.ArrayList()
-        list.add(Attachment("something", "title"))
-        list.add(Attachment("something else", "another title"))
-
         // Return initial message
         defResult.setResult(Message("Checking for events in ${text.capitalize()}", ResponseType.EPHEMERAL))
 
+        // Return follow-up message with events asynchronously
         HawkeyeClient.getEventsAsync(text)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(
@@ -62,9 +63,17 @@ class SlackController {
                             // If we have any results for that location
                             if (t.count > 0) {
                                 log.info("Got results.")
+                                t._embedded.events.mapTo(attachments) {
+                                    Attachment(it.name,
+                                            "*City:* ${it.metro.city}\n" +
+                                                    "*Start:* ${outputFormat.format(inputFormat.parse(it.start))}\n" +
+                                                    "*End:* ${outputFormat.format(inputFormat.parse(it.end))}\n" +
+                                                    "*Attending:* ${it.attending.map { i -> i.firstName + " " + i.lastName }}"
+                                    )
+                                }
                                 SlackClient.responseFollowUp(
                                         responseUrl,
-                                        Attachments(list as ArrayList<Attachment>, "Main Title", ResponseType.EPHEMERAL)
+                                        Attachments(attachments as ArrayList<Attachment>, "${t.count} results for *${text.capitalize()}*", ResponseType.EPHEMERAL)
                                 )
                                         .subscribeOn(Schedulers.newThread())
                                         .subscribe(

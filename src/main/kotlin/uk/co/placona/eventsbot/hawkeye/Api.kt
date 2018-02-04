@@ -7,7 +7,7 @@ import uk.co.placona.eventsbot.models.HawkeyeApiResponse
 
 interface Api {
     // TODO: Change this with the real deal
-    @GET("/bins/wmy4t?viewModel.includeNoAssignedAttendees=false&viewModel.statusId=3")
+    @GET("/bins/1bc0i9?viewModel.includeNoAssignedAttendees=false&viewModel.statusId=3")
     fun getEvents(
             @Query("viewModel.startDate") startDate: String,
             @Query("viewModel.country") country: String,
