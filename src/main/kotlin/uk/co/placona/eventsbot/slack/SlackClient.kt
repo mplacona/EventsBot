@@ -19,10 +19,6 @@ class SlackClient {
         private val log = Logger.getLogger(SlackClient::class.simpleName)
 
         fun responseFollowUp(responseUrl: String, payload: Attachments): Observable<String> {
-            log.info("Slack Client Called")
-            log.info("query parameter $responseUrl")
-            log.info("payload $payload")
-
             val logging = HttpLoggingInterceptor()
             logging.level = HttpLoggingInterceptor.Level.BODY
             val httpClient = OkHttpClient.Builder()

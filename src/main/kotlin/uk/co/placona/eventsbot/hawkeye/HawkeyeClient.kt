@@ -2,6 +2,8 @@ package uk.co.placona.eventsbot.hawkeye
 
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.apache.log4j.Logger
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -15,13 +17,16 @@ class HawkeyeClient {
         private val log = Logger.getLogger(HawkeyeClient::class.simpleName)
 
         fun getEventsAsync(country: String): Observable<HawkeyeApiResponse> {
-            log.info("Hawkeye Client Called")
-            log.info("query parameter $country")
+            val logging = HttpLoggingInterceptor()
+            logging.level = HttpLoggingInterceptor.Level.BODY
+            val httpClient = OkHttpClient.Builder()
+            httpClient.addInterceptor(logging)
 
             val retrofit = Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addConverterFactory(MoshiConverterFactory.create())
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                    .client(httpClient.build())
                     .build()
             val hawkeye = retrofit.create(Api::class.java)
 

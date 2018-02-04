@@ -73,7 +73,7 @@ class SlackController {
                                 }
                                 SlackClient.responseFollowUp(
                                         responseUrl,
-                                        Attachments(attachments as ArrayList<Attachment>, "${t.count} results for *${text.capitalize()}*", ResponseType.EPHEMERAL)
+                                        Attachments(attachments as ArrayList<Attachment>, "${t.count} events for *${text.capitalize()}*", ResponseType.EPHEMERAL)
                                 )
                                         .subscribeOn(Schedulers.newThread())
                                         .subscribe(
