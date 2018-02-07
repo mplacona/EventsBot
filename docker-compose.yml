@@ -1,0 +1,11 @@
+version: '2.1'
+services:
+  events-bot:
+      container_name: eventsbot
+      #image: placona/events-bot
+      image: ef00bd7b6745
+      environment:
+        HAWKEYE_USERNAME: ${HAWKEYE_USERNAME}
+        HAWKEYE_PASSWORD: ${HAWKEYE_PASSWORD}
+      ports:
+        - "8081:8888"

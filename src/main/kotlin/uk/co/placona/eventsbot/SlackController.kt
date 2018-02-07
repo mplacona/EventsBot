@@ -69,8 +69,18 @@ class SlackController {
                                                     "*Start:* ${outputFormat.format(inputFormat.parse(it.start))}\n" +
                                                     "*End:* ${outputFormat.format(inputFormat.parse(it.end))}\n" +
                                                     "*Attending:* ${it.attending.map { i -> i.firstName + " " + i.lastName }}"
+
                                     )
                                 }
+
+                                // Update last attachment to contain BOT information
+                                val lastAttachment =  attachments[attachments.size-1]
+                                lastAttachment.thumb_url = "https://www.twilio.com/docs/static/img/tq.1008.png"
+                                lastAttachment.footer_icon = "https://www.twilio.com/docs/static/img/tq.1008.png"
+                                lastAttachment.footer = "Built with ❤️ by @mplacona"
+
+
+                                // Return with all the events
                                 SlackClient.responseFollowUp(
                                         responseUrl,
                                         Attachments(attachments as ArrayList<Attachment>, "${t.count} events for *${text.capitalize()}*", ResponseType.EPHEMERAL)

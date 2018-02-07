@@ -12,4 +12,4 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 data class Attachments(val attachments: ArrayList<Attachment>, val text: String, val responseType: ResponseType)
 
-data class Attachment (val title: String, val text: String, val color: String = "#36a64f")
+data class Attachment (val title: String, val text: String, var thumb_url: String = "", var footer: String = "", var footer_icon: String = "", val color: String = "#36a64f")

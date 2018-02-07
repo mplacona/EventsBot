@@ -34,8 +34,6 @@ class SlackClient {
             val slack = retrofit.create(Api::class.java)
             val jsonStr = Gson().toJson(payload)
 
-            log.info(jsonStr)
-
             return slack
                     .responseFollowUp(responseUrl, jsonStr)
                     .subscribeOn(Schedulers.newThread())
