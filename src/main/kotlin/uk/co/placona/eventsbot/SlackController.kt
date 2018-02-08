@@ -33,7 +33,7 @@ class SlackController {
             @ModelAttribute("command") command: String,
             @ModelAttribute("text") text: String,
             @ModelAttribute("response_url") responseUrl: String): DeferredResult<Message> {
-        val desiredToken = System.getenv("VERIFICATION_TOKEN")
+        val desiredToken = System.getProperty("VERIFICATION_TOKEN")
         val defResult = DeferredResult<Message>()
         val attachments: kotlin.collections.MutableList<Attachment> = java.util.ArrayList()
         val outputFormat = SimpleDateFormat("EEE, dd MMM YY")

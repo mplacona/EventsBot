@@ -6,5 +6,6 @@ services:
       environment:
         HAWKEYE_USERNAME: ${HAWKEYE_USERNAME}
         HAWKEYE_PASSWORD: ${HAWKEYE_PASSWORD}
+        VERIFICATION_TOKEN: ${VERIFICATION_TOKEN}
       ports:
         - "8081:8888"
