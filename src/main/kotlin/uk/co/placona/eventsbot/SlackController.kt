@@ -1,5 +1,6 @@
 package uk.co.placona.eventsbot
 
+import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import org.apache.log4j.Logger
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -7,19 +8,21 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.request.async.DeferredResult
 import uk.co.placona.eventsbot.hawkeye.HawkeyeClient
-import uk.co.placona.eventsbot.models.Attachment
-import uk.co.placona.eventsbot.models.Attachments
-import uk.co.placona.eventsbot.models.Message
-import uk.co.placona.eventsbot.models.ResponseType
+import uk.co.placona.eventsbot.models.*
 import uk.co.placona.eventsbot.slack.SlackClient
 import uk.co.placona.eventsbot.utilities.UnauthorisedException
+import uk.co.placona.eventsbot.utilities.countrySpell
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 
 
 @RestController
 class SlackController {
-
     private val log = Logger.getLogger(SlackController::class.simpleName)
+
+    private val hawkeyeClient by lazy {
+        HawkeyeClient.create()
+    }
 
     @RequestMapping("/hello", produces = ["application/json"])
     fun hello(
@@ -55,7 +58,7 @@ class SlackController {
         defResult.setResult(Message("Checking for events in ${text.capitalize()}", ResponseType.EPHEMERAL))
 
         // Return follow-up message with events asynchronously
-        HawkeyeClient.getEventsAsync(text)
+        getEvents(countrySpell(text))
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(
                         { t ->
@@ -112,5 +115,12 @@ class SlackController {
     @RequestMapping("/health")
     fun healthy(): String {
         return "Still alive."
+    }
+
+    private fun getEvents(country: String): Observable<HawkeyeEventResponse>{
+        return hawkeyeClient.getEventsByCountry(
+                LocalDateTime.now().toString(),
+                countrySpell(country),
+                System.getProperty("HAWKEYE_PASSWORD"))
     }
 }

@@ -1,6 +1,6 @@
 package uk.co.placona.eventsbot.models
 
-data class HawkeyeApiResponse(val count: Int, val _embedded: Embedded)
+data class HawkeyeEventResponse(val count: Int, val _embedded: EmbeddedEvent)
 data class Event(
         val id: Int,
         val name: String,
@@ -15,6 +15,15 @@ data class Attending(
         val lastName: String
 )
 
-data class Embedded(val events: List<Event>)
+data class EmbeddedEvent(val events: List<Event>)
 
 data class Metro (val city: String)
+
+data class HawkeyeTagResponse(val count: Int, val _embedded: EmbeddedTag)
+
+data class Tag(
+        val id: Int,
+        val name: String
+)
+
+data class EmbeddedTag(val tags: List<Tag>)
