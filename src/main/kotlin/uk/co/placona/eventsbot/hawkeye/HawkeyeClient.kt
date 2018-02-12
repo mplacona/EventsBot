@@ -11,7 +11,6 @@ import uk.co.placona.eventsbot.utilities.BasicAuthInterceptor
 class HawkeyeClient {
     companion object {
         private const val BASE_URL: String = "https://hawkeye.twilio.red"
-        private val log = Logger.getLogger(HawkeyeClient::class.simpleName)
 
         fun create(): Api{
             val logging = HttpLoggingInterceptor()

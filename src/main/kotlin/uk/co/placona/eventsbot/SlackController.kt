@@ -33,20 +33,8 @@ class SlackController(@Autowired private val hawkeyeRepository: HawkeyeRepositor
         val desiredToken = System.getProperty("VERIFICATION_TOKEN")
         val defResult = DeferredResult<Message>()
         val attachments: kotlin.collections.MutableList<Attachment> = java.util.ArrayList()
-//        val tags: kotlin.collections.MutableList<Tag> = java.util.ArrayList()
         val outputFormat = SimpleDateFormat("EEE, dd MMM YY")
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-
-//        HawkeyeRepository.getTags()
-//                .subscribeOn(Schedulers.newThread())
-//                .subscribe(
-//                        { t ->
-//                            t._embedded.tags.mapTo(tags) {
-//                                Tag(it.id, it.name)
-//                            }
-//                        },
-//                        { error -> log.error(error) }
-//                )
 
         if (desiredToken != token) {
             throw UnauthorisedException()
@@ -64,7 +52,7 @@ class SlackController(@Autowired private val hawkeyeRepository: HawkeyeRepositor
         defResult.setResult(Message("Checking for events in ${text.capitalize()}", ResponseType.EPHEMERAL))
 
         // Return follow-up message with events asynchronously
-        hawkeyeRepository.getEventsByCountry(countrySpell(text))
+        hawkeyeRepository.getEventsByCountryOrTag(text)
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(
                         { t ->
