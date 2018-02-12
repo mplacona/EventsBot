@@ -2,8 +2,10 @@ package uk.co.placona.eventsbot
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.cache.annotation.EnableCaching
 
 @SpringBootApplication
+@EnableCaching
 open class EventsBotApp
 
 fun main(args: Array<String>) {

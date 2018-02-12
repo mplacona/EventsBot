@@ -1,28 +1,22 @@
 package uk.co.placona.eventsbot
 
-import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import org.apache.log4j.Logger
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.request.async.DeferredResult
-import uk.co.placona.eventsbot.hawkeye.HawkeyeClient
+import uk.co.placona.eventsbot.hawkeye.HawkeyeRepository
 import uk.co.placona.eventsbot.models.*
 import uk.co.placona.eventsbot.slack.SlackClient
-import uk.co.placona.eventsbot.utilities.UnauthorisedException
-import uk.co.placona.eventsbot.utilities.countrySpell
+import uk.co.placona.eventsbot.utilities.*
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 
 
 @RestController
-class SlackController {
+class SlackController(@Autowired private val hawkeyeRepository: HawkeyeRepository) {
     private val log = Logger.getLogger(SlackController::class.simpleName)
-
-    private val hawkeyeClient by lazy {
-        HawkeyeClient.create()
-    }
 
     @RequestMapping("/hello", produces = ["application/json"])
     fun hello(
@@ -39,8 +33,20 @@ class SlackController {
         val desiredToken = System.getProperty("VERIFICATION_TOKEN")
         val defResult = DeferredResult<Message>()
         val attachments: kotlin.collections.MutableList<Attachment> = java.util.ArrayList()
+//        val tags: kotlin.collections.MutableList<Tag> = java.util.ArrayList()
         val outputFormat = SimpleDateFormat("EEE, dd MMM YY")
         val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+
+//        HawkeyeRepository.getTags()
+//                .subscribeOn(Schedulers.newThread())
+//                .subscribe(
+//                        { t ->
+//                            t._embedded.tags.mapTo(tags) {
+//                                Tag(it.id, it.name)
+//                            }
+//                        },
+//                        { error -> log.error(error) }
+//                )
 
         if (desiredToken != token) {
             throw UnauthorisedException()
@@ -58,7 +64,7 @@ class SlackController {
         defResult.setResult(Message("Checking for events in ${text.capitalize()}", ResponseType.EPHEMERAL))
 
         // Return follow-up message with events asynchronously
-        getEvents(countrySpell(text))
+        hawkeyeRepository.getEventsByCountry(countrySpell(text))
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(
                         { t ->
@@ -77,7 +83,7 @@ class SlackController {
                                 }
 
                                 // Update last attachment to contain BOT information
-                                val lastAttachment =  attachments[attachments.size-1]
+                                val lastAttachment = attachments[attachments.size - 1]
                                 lastAttachment.thumb_url = "https://www.twilio.com/docs/static/img/tq.1008.png"
                                 lastAttachment.footer_icon = "https://www.twilio.com/docs/static/img/tq.1008.png"
                                 lastAttachment.footer = "Built with ❤️ by @mplacona"
@@ -96,7 +102,7 @@ class SlackController {
                             } else {
                                 SlackClient.responseFollowUp(
                                         responseUrl,
-                                        Attachments(ArrayList(),"Sorry, no results for *${text.capitalize()}* 💔", ResponseType.EPHEMERAL)
+                                        Attachments(ArrayList(), "Sorry, no results for *${text.capitalize()}* 💔", ResponseType.EPHEMERAL)
                                 )
                                         .subscribe(
                                                 { s: String -> print(s) },
@@ -115,12 +121,5 @@ class SlackController {
     @RequestMapping("/health")
     fun healthy(): String {
         return "Still alive."
-    }
-
-    private fun getEvents(country: String): Observable<HawkeyeEventResponse>{
-        return hawkeyeClient.getEventsByCountry(
-                LocalDateTime.now().toString(),
-                countrySpell(country),
-                System.getProperty("HAWKEYE_PASSWORD"))
     }
 }
