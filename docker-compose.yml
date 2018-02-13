@@ -1,9 +1,39 @@
 version: '2.1'
 services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+          - "./proxy.conf:/etc/nginx/proxy.conf"
+          - "/etc/nginx/vhost.d"
+          - "/usr/share/nginx/html"
+          - "/var/run/docker.sock:/tmp/docker.sock:ro"
+          - "./vhosts:/etc/nginx/vhost.d"
+          - "/var/local/nginx/certs:/etc/nginx/certs:ro"
+    labels:
+          - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
+  nginx-proxy-letsencrypt-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-proxy-letsencrypt-companion
+    restart: always
+    volumes:
+        - "/var/local/nginx/certs:/etc/nginx/certs:rw"
+        - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    volumes_from:
+        - "nginx-proxy"
+
   events-bot:
       container_name: eventsbot
       image: cloud.canister.io:5000/mplacona/events-bot
       environment:
+        VIRTUAL_HOST: eventsbot.twilio.rocks
+        VIRTUAL_PORT: 80
+        LETSENCRYPT_HOST: eventsbot.twilio.rocks
+        LETSENCRYPT_EMAIL: marcos.placona@gmail.com
         HAWKEYE_USERNAME: ${HAWKEYE_USERNAME}
         HAWKEYE_PASSWORD: ${HAWKEYE_PASSWORD}
         VERIFICATION_TOKEN: ${VERIFICATION_TOKEN}

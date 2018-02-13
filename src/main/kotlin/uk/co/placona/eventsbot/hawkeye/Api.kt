@@ -9,14 +9,14 @@ import uk.co.placona.eventsbot.models.HawkeyeTagResponse
 
 interface Api {
     // All Green events
-    @GET("/api/events?viewModel.includeNoAssignedAttendees=false&viewModel.statusId=3&viewModel.pageSize=1000")
+    @GET("/api/events?viewModel.includeNoAssignedAttendees=false&viewModel.statusId=3&viewModel.pageSize=1000&viewModel.sort=start")
     fun getEventsByCountry(
             @Query("viewModel.startDate") startDate: String,
             @Query("viewModel.country") country: String,
             @Query("api_key") apiKey: String)
             : Observable<HawkeyeEventResponse>
 
-    @GET("/api/events?viewModel.includeNoAssignedAttendees=false&viewModel.statusId=3&viewModel.pageSize=1000")
+    @GET("/api/events?viewModel.includeNoAssignedAttendees=false&viewModel.statusId=3&viewModel.pageSize=1000&viewModel.sort=start")
     fun getEventsByTag(
             @Query("viewModel.startDate") startDate: String,
             @Query("viewModel.eventTagIds") tag: String,
