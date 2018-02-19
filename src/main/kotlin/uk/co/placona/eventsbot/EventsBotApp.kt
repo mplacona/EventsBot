@@ -3,47 +3,41 @@ package uk.co.placona.eventsbot
 import io.reactivex.schedulers.Schedulers
 import org.apache.log4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.cache.annotation.EnableCaching
 import uk.co.placona.eventsbot.hawkeye.HawkeyeRepository
+import uk.co.placona.eventsbot.hawkeye.HawkeyeService
+import javax.annotation.PostConstruct
 
 
 @SpringBootApplication
 @EnableCaching
-open class EventsBotApp  : CommandLineRunner {
+open class EventsBotApp {
+
     @Autowired
+    private
+    lateinit var hawkeyeService: HawkeyeService
+
+    @Autowired
+    private
     lateinit var hawkeyeRepository: HawkeyeRepository
 
     private val log = Logger.getLogger(EventsBotApp::class.simpleName)
 
-    companion object {
-        lateinit var tags: Map<String, Int>
-        lateinit var countries: Map<String, Int>
-    }
+    @PostConstruct
+    fun init() {
+        hawkeyeRepository = HawkeyeRepository(hawkeyeService)
 
-    override fun run(vararg args: String?) {
-
-        // Load tags in memory
         hawkeyeRepository.getTags()
                 .subscribeOn(Schedulers.io())
-                .subscribe(
-                        { t ->
-                            tags = t
-                        },
-                        { error -> log.error(error) }
-                )
+                .subscribe()
 
-        // Load countries in memory
         hawkeyeRepository.getCountries()
                 .subscribeOn(Schedulers.io())
-                .subscribe(
-                        { t ->
-                            countries = t
-                        },
-                        { error -> log.error(error) }
-                )
+                .subscribe()
+
+        log.info("Cache initialised")
     }
 }
 

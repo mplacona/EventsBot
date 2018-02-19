@@ -11,10 +11,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.internal.util.reflection.Whitebox
 import org.springframework.test.context.junit4.SpringRunner
 import uk.co.placona.eventsbot.EventsBotApp
-import uk.co.placona.eventsbot.EventsBotApp.Companion.tags
 import uk.co.placona.eventsbot.models.*
 
 @RunWith(SpringRunner::class)
@@ -91,5 +89,38 @@ class HawkeyeRepositoryTest {
         } returns Observable.just(response)
 
         assertThat(hawkeyeRepository.checkIsTag("test"), `is`(1))
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun `when checking if invalid tag exists return default value`(){
+        val response = HawkeyeTagResponse(1, EmbeddedTag(listOf(Tag(1, "test"))))
+        every { mockHawkeyeService
+                .getTags(System.getProperty("HAWKEYE_PASSWORD"))
+        } returns Observable.just(response)
+
+        assertThat(hawkeyeRepository.checkIsTag("invalid-tag"), `is`(0))
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun `when checking if a country exists return country id`(){
+        val response = HawkeyeCountryResponse(1, EmbeddedCountry(listOf(Country(1, "test"))))
+        every { mockHawkeyeService
+                .getCountries(System.getProperty("HAWKEYE_PASSWORD"))
+        } returns Observable.just(response)
+
+        assertThat(hawkeyeRepository.checkIsCountry("test"), `is`(1))
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun `when checking if invalid country exists return default value`(){
+        val response = HawkeyeCountryResponse(1, EmbeddedCountry(listOf(Country(1, "test"))))
+        every { mockHawkeyeService
+                .getCountries(System.getProperty("HAWKEYE_PASSWORD"))
+        } returns Observable.just(response)
+
+        assertThat(hawkeyeRepository.checkIsCountry("invalid-country"), `is`(0))
     }
 }

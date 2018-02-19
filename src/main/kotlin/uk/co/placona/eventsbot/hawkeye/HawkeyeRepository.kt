@@ -4,7 +4,6 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
-import uk.co.placona.eventsbot.EventsBotApp
 import uk.co.placona.eventsbot.models.HawkeyeEventResponse
 import uk.co.placona.eventsbot.utilities.countrySpell
 import java.time.LocalDateTime
@@ -45,12 +44,12 @@ open class HawkeyeRepository @Autowired constructor(private val hawkeyeService: 
     }
 
     fun checkIsTag(text: String): Int{
-        val tags = EventsBotApp.tags
+        val tags = getTags().blockingFirst()
         return tags.getOrDefault(text, 0)
     }
 
     fun checkIsCountry(text: String): Int{
-        val countries = EventsBotApp.countries
+        val countries = getCountries().blockingFirst()
         return countries.getOrDefault(text, 0)
     }
 }

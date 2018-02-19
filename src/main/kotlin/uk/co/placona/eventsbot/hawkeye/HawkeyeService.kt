@@ -2,6 +2,7 @@ package uk.co.placona.eventsbot.hawkeye
 
 import io.reactivex.Observable
 import io.reactivex.Single
+import org.springframework.cache.annotation.Cacheable
 import retrofit2.http.GET
 import retrofit2.http.Query
 import uk.co.placona.eventsbot.models.HawkeyeCountryResponse
@@ -25,8 +26,10 @@ interface HawkeyeService {
             : Observable<HawkeyeEventResponse>
 
     @GET("/api/tags?pageSize=1000")
+    @Cacheable("tags")
     fun getTags(@Query("api_key") apiKey: String) : Observable<HawkeyeTagResponse>
 
     @GET("/api/countries?pageSize=1000")
+    @Cacheable("countries")
     fun getCountries(@Query("api_key") apiKey: String) : Observable<HawkeyeCountryResponse>
 }
