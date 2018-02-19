@@ -38,4 +38,4 @@ open class Country(
         open val name: String
 )
 
-data class EmbeddedCountry(val countries: List<Tag>)
+data class EmbeddedCountry(val countries: List<Country>)

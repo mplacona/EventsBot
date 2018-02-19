@@ -16,7 +16,7 @@ open class EventsBotApp  : CommandLineRunner {
     @Autowired
     lateinit var hawkeyeRepository: HawkeyeRepository
 
-    private val log = Logger.getLogger(SlackController::class.simpleName)
+    private val log = Logger.getLogger(EventsBotApp::class.simpleName)
 
     companion object {
         lateinit var tags: Map<String, Int>
@@ -27,31 +27,24 @@ open class EventsBotApp  : CommandLineRunner {
 
         // Load tags in memory
         hawkeyeRepository.getTags()
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .subscribe(
                         { t ->
-                            tags = t._embedded.tags.associateBy( {it.name}, {it.id})
+                            tags = t
                         },
                         { error -> log.error(error) }
                 )
 
         // Load countries in memory
         hawkeyeRepository.getCountries()
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .subscribe(
                         { t ->
-                            countries = t._embedded.countries.associateBy( {it.name}, {it.id})
+                            countries = t
                         },
                         { error -> log.error(error) }
                 )
     }
-
-
-
-
-
-
-
 }
 
 fun main(args: Array<String>) {

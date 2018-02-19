@@ -1,13 +1,14 @@
 package uk.co.placona.eventsbot.hawkeye
 
 import io.reactivex.Observable
+import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Query
 import uk.co.placona.eventsbot.models.HawkeyeCountryResponse
 import uk.co.placona.eventsbot.models.HawkeyeEventResponse
 import uk.co.placona.eventsbot.models.HawkeyeTagResponse
 
-interface Api {
+interface HawkeyeService {
     // All Green events
     @GET("/api/events?viewModel.includeNoAssignedAttendees=false&viewModel.statusId=3&viewModel.pageSize=1000&viewModel.sort=start")
     fun getEventsByCountry(
